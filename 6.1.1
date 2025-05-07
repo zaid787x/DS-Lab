@@ -1,0 +1,174 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// Define the structure for a node
+struct Node {
+    int data;
+    struct Node* prev;
+    struct Node* next;
+};
+
+struct Node* head = NULL;
+
+// Function to insert a number at the end of the list
+void insert(int value) {
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+    if (!newNode) {
+        printf("Memory allocation failed.\n");
+        return;
+    }
+    newNode->data = value;
+    newNode->prev = NULL;
+    newNode->next = NULL;
+
+    if (head == NULL) {
+        head = newNode;
+    } else {
+        struct Node* temp = head;
+        while (temp->next != NULL)
+            temp = temp->next;
+        temp->next = newNode;
+        newNode->prev = temp;
+    }
+    printf("Inserted %d into the list.\n", value);
+}
+
+// Function to delete a specific number from the list
+void delete(int value) {
+    if (head == NULL) {
+        printf("List is empty. Cannot delete %d.\n", value);
+        return;
+    }
+
+    struct Node* temp = head;
+
+    // If the node to be deleted is the head
+    if (temp->data == value) {
+        head = temp->next;
+        if (head != NULL)
+            head->prev = NULL;
+        free(temp);
+        printf("Deleted %d from the list.\n", value);
+        return;
+    }
+
+    while (temp != NULL && temp->data != value)
+        temp = temp->next;
+
+    if (temp == NULL) {
+        printf("Number %d not found in the list.\n", value);
+        return;
+    }
+
+    if (temp->next != NULL)
+        temp->next->prev = temp->prev;
+    if (temp->prev != NULL)
+        temp->prev->next = temp->next;
+
+    free(temp);
+    printf("Deleted %d from the list.\n", value);
+}
+
+// Function to display the list
+void display() {
+    if (head == NULL) {
+        printf("List is empty.\n");
+        return;
+    }
+
+    struct Node* temp = head;
+    printf("List elements: ");
+    while (temp != NULL) {
+        printf("%d ", temp->data);
+        temp = temp->next;
+    }
+    printf("\n");
+}
+
+// Function to reverse the list
+void reverse() {
+    if (head == NULL) {
+        printf("List is empty. Cannot reverse.\n");
+        return;
+    }
+
+    struct Node* temp = NULL;
+    struct Node* current = head;
+
+    // Swap next and prev for all nodes
+    while (current != NULL) {
+        temp = current->prev;
+        current->prev = current->next;
+        current->next = temp;
+        current = current->prev;
+    }
+
+    // Before changing the head, check for the cases like empty list and list with only one node
+    if (temp != NULL)
+        head = temp->prev;
+
+    printf("List has been reversed.\n");
+}
+
+// Main function with menu
+int main() {
+    int choice, value;
+
+    do {
+        printf("\n--- Doubly Linked List Menu ---\n");
+        printf("1. Insert a number\n");
+        printf("2. Delete a number\n");
+        printf("3. Display the list\n");
+        printf("4. Reverse the list\n");
+        printf("0. Exit\n");
+        printf("Enter your choice (0-4): ");
+        if (scanf("%d", &choice) != 1) {
+            // Clear invalid input
+            while (getchar() != '\n');
+            printf("Invalid input. Please enter a number between 0 and 4.\n");
+            continue;
+        }
+
+        switch (choice) {
+            case 1:
+                printf("Enter the number to insert: ");
+                if (scanf("%d", &value) != 1) {
+                    while (getchar() != '\n');
+                    printf("Invalid input. Please enter a valid number.\n");
+                    continue;
+                }
+                insert(value);
+                break;
+            case 2:
+                printf("Enter the number to delete: ");
+                if (scanf("%d", &value) != 1) {
+                    while (getchar() != '\n');
+                    printf("Invalid input. Please enter a valid number.\n");
+                    continue;
+                }
+                delete(value);
+                break;
+            case 3:
+                display();
+                break;
+            case 4:
+                reverse();
+                break;
+            case 0:
+                printf("Exiting program.\n");
+                break;
+            default:
+                printf("Invalid choice. Please select between 0 and 4.\n");
+        }
+    } while (choice != 0);
+
+    // Free allocated memory
+    struct Node* temp;
+    while (head != NULL) {
+        temp = head;
+        head = head->next;
+        free(temp);
+    }
+
+    return 0;
+}
