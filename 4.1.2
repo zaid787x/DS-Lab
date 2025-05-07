@@ -1,0 +1,164 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// Define the structure for a node
+struct Node {
+    int data;
+    struct Node* next;
+};
+
+// Function to create a new node
+struct Node* createNode(int value) {
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+    if (!newNode) {
+        printf("Memory allocation failed.\n");
+        exit(EXIT_FAILURE);
+    }
+    newNode->data = value;
+    newNode->next = NULL;
+    return newNode;
+}
+
+// Function to create a linked list by adding nodes at the end
+struct Node* createList() {
+    struct Node* head = NULL;
+    struct Node* tail = NULL;
+    int n, value;
+
+    printf("Enter the number of nodes: ");
+    if (scanf("%d", &n) != 1 || n <= 0) {
+        printf("Invalid number of nodes.\n");
+        return NULL;
+    }
+
+    for (int i = 0; i < n; i++) {
+        printf("Enter data for node %d: ", i + 1);
+        if (scanf("%d", &value) != 1) {
+            printf("Invalid input. Aborting list creation.\n");
+            // Free any previously allocated nodes
+            struct Node* temp;
+            while (head) {
+                temp = head;
+                head = head->next;
+                free(temp);
+            }
+            return NULL;
+        }
+        struct Node* newNode = createNode(value);
+        if (!head) {
+            head = tail = newNode;
+        } else {
+            tail->next = newNode;
+            tail = newNode;
+        }
+    }
+    return head;
+}
+
+// Function to display the linked list
+void displayList(struct Node* head) {
+    if (!head) {
+        printf("List is empty.\n");
+        return;
+    }
+    printf("List elements: ");
+    while (head) {
+        printf("%d -> ", head->data);
+        head = head->next;
+    }
+    printf("NULL\n");
+}
+
+// Function to concatenate two linked lists
+struct Node* concatenateLists(struct Node* head1, struct Node* head2) {
+    if (!head1) return head2;
+    if (!head2) return head1;
+
+    struct Node* temp = head1;
+    while (temp->next) {
+        temp = temp->next;
+    }
+    temp->next = head2;
+    return head1;
+}
+
+// Function to free the linked list
+void freeList(struct Node* head) {
+    struct Node* temp;
+    while (head) {
+        temp = head;
+        head = head->next;
+        free(temp);
+    }
+}
+
+// Main function with menu
+int main() {
+    struct Node* list1 = NULL;
+    struct Node* list2 = NULL;
+    struct Node* concatenatedList = NULL;
+    int choice;
+
+    do {
+        printf("\n--- Singly Linked List Menu ---\n");
+        printf("1. Create First List\n");
+        printf("2. Create Second List\n");
+        printf("3. Display First List\n");
+        printf("4. Display Second List\n");
+        printf("5. Concatenate Lists\n");
+        printf("6. Display Concatenated List\n");
+        printf("7. Exit\n");
+        printf("Enter your choice: ");
+        if (scanf("%d", &choice) != 1) {
+            // Clear invalid input
+            while (getchar() != '\n');
+            printf("Invalid input. Please enter a number between 1 and 7.\n");
+            continue;
+        }
+
+        switch (choice) {
+            case 1:
+                freeList(list1);
+                printf("Creating First List:\n");
+                list1 = createList();
+                break;
+            case 2:
+                freeList(list2);
+                printf("Creating Second List:\n");
+                list2 = createList();
+                break;
+            case 3:
+                printf("First List:\n");
+                displayList(list1);
+                break;
+            case 4:
+                printf("Second List:\n");
+                displayList(list2);
+                break;
+            case 5:
+                freeList(concatenatedList);
+                concatenatedList = concatenateLists(list1, list2);
+                printf("Lists have been concatenated.\n");
+                break;
+            case 6:
+                printf("Concatenated List:\n");
+                displayList(concatenatedList);
+                break;
+            case 7:
+                printf("Exiting program.\n");
+                break;
+            default:
+                printf("Invalid choice. Please select between 1 and 7.\n");
+        }
+    } while (choice != 7);
+
+    // Free allocated memory
+    freeList(list1);
+    freeList(list2);
+    // Avoid double free if concatenatedList points to list1
+    if (concatenatedList != list1 && concatenatedList != list2) {
+        freeList(concatenatedList);
+    }
+
+    return 0;
+}
