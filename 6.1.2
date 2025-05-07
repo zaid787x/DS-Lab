@@ -1,0 +1,161 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// Define the structure for a node
+struct Node {
+    int data;
+    struct Node* prev;
+    struct Node* next;
+};
+
+// Function to create a new node
+struct Node* createNode(int data) {
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+    if (!newNode) {
+        printf("Memory allocation failed.\n");
+        exit(1);
+    }
+    newNode->data = data;
+    newNode->prev = newNode->next = NULL;
+    return newNode;
+}
+
+// Function to append a node at the end of the list
+void append(struct Node** head_ref, int data) {
+    struct Node* newNode = createNode(data);
+    if (*head_ref == NULL) {
+        *head_ref = newNode;
+        return;
+    }
+    struct Node* temp = *head_ref;
+    while (temp->next != NULL)
+        temp = temp->next;
+    temp->next = newNode;
+    newNode->prev = temp;
+}
+
+// Function to display the list
+void displayList(struct Node* head) {
+    if (head == NULL) {
+        printf("List is empty.\n");
+        return;
+    }
+    struct Node* temp = head;
+    while (temp != NULL) {
+        printf("%d ", temp->data);
+        temp = temp->next;
+    }
+    printf("\n");
+}
+
+// Function to concatenate list2 to the end of list1
+void concatenate(struct Node** head1_ref, struct Node* head2) {
+    if (*head1_ref == NULL) {
+        *head1_ref = head2;
+        return;
+    }
+    if (head2 == NULL)
+        return;
+    struct Node* temp = *head1_ref;
+    while (temp->next != NULL)
+        temp = temp->next;
+    temp->next = head2;
+    head2->prev = temp;
+}
+
+// Function to free the memory allocated for the list
+void freeList(struct Node* head) {
+    struct Node* temp;
+    while (head != NULL) {
+        temp = head;
+        head = head->next;
+        free(temp);
+    }
+}
+
+int main() {
+    struct Node* list1 = NULL;
+    struct Node* list2 = NULL;
+    int choice, data, n;
+
+    do {
+        printf("\nMenu:\n");
+        printf("1. Create List 1\n");
+        printf("2. Create List 2\n");
+        printf("3. Display Lists\n");
+        printf("4. Concatenate List 2 to List 1\n");
+        printf("0. Exit\n");
+        printf("Enter your choice: ");
+        if (scanf("%d", &choice) != 1) {
+            // Clear invalid input
+            while (getchar() != '\n');
+            printf("Invalid input. Please enter a number between 0 and 4.\n");
+            continue;
+        }
+
+        switch (choice) {
+            case 1:
+                freeList(list1);
+                list1 = NULL;
+                printf("Enter the number of elements for List 1: ");
+                if (scanf("%d", &n) != 1 || n < 0) {
+                    while (getchar() != '\n');
+                    printf("Invalid input. Please enter a non-negative integer.\n");
+                    break;
+                }
+                for (int i = 0; i < n; i++) {
+                    printf("Enter element %d: ", i + 1);
+                    if (scanf("%d", &data) != 1) {
+                        while (getchar() != '\n');
+                        printf("Invalid input. Please enter an integer.\n");
+                        i--; // Retry the current iteration
+                        continue;
+                    }
+                    append(&list1, data);
+                }
+                break;
+            case 2:
+                freeList(list2);
+                list2 = NULL;
+                printf("Enter the number of elements for List 2: ");
+                if (scanf("%d", &n) != 1 || n < 0) {
+                    while (getchar() != '\n');
+                    printf("Invalid input. Please enter a non-negative integer.\n");
+                    break;
+                }
+                for (int i = 0; i < n; i++) {
+                    printf("Enter element %d: ", i + 1);
+                    if (scanf("%d", &data) != 1) {
+                        while (getchar() != '\n');
+                        printf("Invalid input. Please enter an integer.\n");
+                        i--; // Retry the current iteration
+                        continue;
+                    }
+                    append(&list2, data);
+                }
+                break;
+            case 3:
+                printf("List 1: ");
+                displayList(list1);
+                printf("List 2: ");
+                displayList(list2);
+                break;
+            case 4:
+                concatenate(&list1, list2);
+                list2 = NULL; // After concatenation, list2 is merged into list1
+                printf("Lists concatenated successfully.\n");
+                break;
+            case 0:
+                printf("Exiting program.\n");
+                break;
+            default:
+                printf("Invalid choice. Please select between 0 and 4.\n");
+        }
+    } while (choice != 0);
+
+    // Free allocated memory
+    freeList(list1);
+    freeList(list2);
+
+    return 0;
+}
