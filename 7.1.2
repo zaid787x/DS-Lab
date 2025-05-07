@@ -1,0 +1,152 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// Define the structure for a BST node
+struct Node {
+    int data;
+    struct Node* left;
+    struct Node* right;
+};
+
+// Function to create a new BST node
+struct Node* createNode(int data) {
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+    if (!newNode) {
+        printf("Memory allocation failed.\n");
+        exit(1);
+    }
+    newNode->data = data;
+    newNode->left = newNode->right = NULL;
+    return newNode;
+}
+
+// Function to insert a node into the BST
+struct Node* insert(struct Node* root, int data) {
+    if (root == NULL) {
+        return createNode(data);
+    }
+    if (data < root->data) {
+        root->left = insert(root->left, data);
+    } else if (data > root->data) {
+        root->right = insert(root->right, data);
+    } else {
+        printf("Duplicate data not allowed in BST.\n");
+    }
+    return root;
+}
+
+// Function for in-order traversal
+void inorder(struct Node* root) {
+    if (root != NULL) {
+        inorder(root->left);
+        printf("%d ", root->data);
+        inorder(root->right);
+    }
+}
+
+// Function for pre-order traversal
+void preorder(struct Node* root) {
+    if (root != NULL) {
+        printf("%d ", root->data);
+        preorder(root->left);
+        preorder(root->right);
+    }
+}
+
+// Function for post-order traversal
+void postorder(struct Node* root) {
+    if (root != NULL) {
+        postorder(root->left);
+        postorder(root->right);
+        printf("%d ", root->data);
+    }
+}
+
+// Function to search for an element in the BST
+struct Node* search(struct Node* root, int key) {
+    if (root == NULL || root->data == key)
+        return root;
+    if (key < root->data)
+        return search(root->left, key);
+    return search(root->right, key);
+}
+
+// Function to free the memory allocated for the BST
+void freeTree(struct Node* root) {
+    if (root != NULL) {
+        freeTree(root->left);
+        freeTree(root->right);
+        free(root);
+    }
+}
+
+int main() {
+    struct Node* root = NULL;
+    int choice, data;
+
+    do {
+        printf("\n--- Binary Search Tree Menu ---\n");
+        printf("1. Insert a node\n");
+        printf("2. In-order Traversal\n");
+        printf("3. Pre-order Traversal\n");
+        printf("4. Post-order Traversal\n");
+        printf("5. Search an element\n");
+        printf("0. Exit\n");
+        printf("Enter your choice (0-5): ");
+        if (scanf("%d", &choice) != 1) {
+            while (getchar() != '\n');
+            printf("Invalid input. Please enter a number between 0 and 5.\n");
+            continue;
+        }
+
+        switch (choice) {
+            case 1:
+                printf("Enter the number to insert: ");
+                if (scanf("%d", &data) != 1) {
+                    while (getchar() != '\n');
+                    printf("Invalid input. Please enter a valid number.\n");
+                    continue;
+                }
+                root = insert(root, data);
+                break;
+            case 2:
+                printf("In-order Traversal: ");
+                inorder(root);
+                printf("\n");
+                break;
+            case 3:
+                printf("Pre-order Traversal: ");
+                preorder(root);
+                printf("\n");
+                break;
+            case 4:
+                printf("Post-order Traversal: ");
+                postorder(root);
+                printf("\n");
+                break;
+            case 5:
+                printf("Enter the number to search: ");
+                if (scanf("%d", &data) != 1) {
+                    while (getchar() != '\n');
+                    printf("Invalid input. Please enter a valid number.\n");
+                    continue;
+                }
+                struct Node* result = search(root, data);
+                if (result != NULL)
+                    printf("%d found in the BST.\n", data);
+                else
+                    printf("%d not found in the BST.\n", data);
+                break;
+            case 0:
+                printf("Exiting program.\n");
+                break;
+            default:
+                printf("Invalid choice. Please select between 0 and 5.\n");
+        }
+    } while (choice != 0);
+
+    // Free allocated memory
+    freeTree(root);
+
+    return 0;
+}
